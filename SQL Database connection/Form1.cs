@@ -23,7 +23,7 @@ namespace SQL_Database_connection
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            this.Size = new Size(187, 135);
         }
 
         //Opening the database with a button
@@ -31,9 +31,13 @@ namespace SQL_Database_connection
         {
             cnn = new SqlConnection(connectionString); //Set the cnn variable to connect to the database vairable
             cnn.Open(); //Open the data base
-            MessageBox.Show("Data base open"); //Check if it works
 
             cnn.Close(); //Close the data base for security
+
+            button4.Visible = true;
+            button5.Visible = true;
+
+            button1.Visible = false;
         }
 
         //Runs the query
@@ -57,7 +61,7 @@ namespace SQL_Database_connection
         }
 
         //Inserts new items to a table
-        private async void button3_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)
         {
             //Does not work
             //cnn.Open();
@@ -72,17 +76,91 @@ namespace SQL_Database_connection
             //adapter.InsertCommand.ExecuteNonQuery();
             //command.Dispose();
             //cnn.Close();
-            
-            //Works
-            string Query = $"INSERT INTO TaskList1(TaskID, TaskName, PersonInCharge, Deadline) VALUES('{textBox1.Text}','{textBox2.Text}','{textBox3.Text}','{dateTimePicker1.Text}')"; //Query too add your data 
-            using (cnn = new SqlConnection(connectionString))
-            {
-                cnn.Open();
-                command = new SqlCommand(Query, cnn);
-                int rows = command.ExecuteNonQuery();
 
+            //Works
+            Random rnd = new Random();
+            int TaskID = rnd.Next(0,100);
+
+            if (String.IsNullOrEmpty(textBox2.Text) || String.IsNullOrEmpty(textBox3.Text) || String.IsNullOrEmpty(dateTimePicker1.Text))
+            {
+                MessageBox.Show("Some details are missing");
             }
-            command.Dispose();
+            else
+            {
+                string Query = $"INSERT INTO TaskList1(TaskID, TaskName, PersonInCharge, Deadline) VALUES('{TaskID}','{textBox2.Text}','{textBox3.Text}','{dateTimePicker1.Text}')"; //Query too add your data 
+                using (cnn = new SqlConnection(connectionString))
+                {
+                    cnn.Open();
+                    command = new SqlCommand(Query, cnn);
+                    int rows = command.ExecuteNonQuery();
+
+                }
+                command.Dispose();
+                cnn.Close();
+            }
+            textBox2.Text = null;
+            textBox3.Text = null;
+            dateTimePicker1.Text = null;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            this.Size = new Size(355, 256);
+
+            button3.Visible = true;
+            button4.Visible = false; 
+            button5.Visible = false;
+
+            label1.Visible = true;
+            label2.Visible = true;
+            label3.Visible = true;
+
+            textBox2.Visible = true;
+            textBox3.Visible = true;
+            dateTimePicker1.Visible = true;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            this.Size = new Size(355, 256);
+
+            button2.Visible = true;
+            button4.Visible = false;
+            button5.Visible = false;
+
+            label4.Visible = true;
+            label1.Visible = true;
+            label2.Visible = true;
+            label3.Visible = true;
+
+            textBox1.Visible = true;
+            textBox2.Visible = true;
+            textBox3.Visible = true;
+            dateTimePicker1.Visible = true;
+
+            textBox2.Enabled = false;
+            textBox3.Enabled = false;
+            dateTimePicker1.Enabled = false;
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            cnn.Open();
+
+            SqlCommand cmm = new SqlCommand("Select TaskID, TaskName, PersonInCharge, Deadline from TaskList1 where TaskID =@TaskID", cnn);
+            cmm.Parameters.AddWithValue("TaskID", textBox1.Text);
+            SqlDataReader reader1;
+            reader1 = cmm.ExecuteReader();
+            if (reader1.Read())
+            {
+                textBox2.Text = reader1["TaskName"].ToString();
+                textBox3.Text = reader1["PersonInCharge"].ToString();
+                dateTimePicker1.Text = reader1["Deadline"].ToString();
+            }
+            else
+            {
+                MessageBox.Show("No data found");
+            }
             cnn.Close();
         }
     }
